@@ -12,9 +12,6 @@ class Settings(BaseSettings):
     database_url: str = Field(default="sqlite:///./youziloadlab.dev.db", alias="DATABASE_URL")
     data_dir: str = Field(default="./data", alias="DATA_DIR")
     runner_workdir: str = Field(default="./data/runs", alias="RUNNER_WORKDIR")
-    max_concurrent_runs: int = Field(default=1, alias="MAX_CONCURRENT_RUNS")
-    max_users_per_run: int = Field(default=200, alias="MAX_USERS_PER_RUN")
-    allow_public_runs: bool = Field(default=False, alias="ALLOW_PUBLIC_RUNS")
     cors_origins: str = Field(
         default="http://localhost:5173,http://localhost:8000",
         alias="CORS_ORIGINS",

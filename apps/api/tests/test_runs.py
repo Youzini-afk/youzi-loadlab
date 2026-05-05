@@ -2,11 +2,9 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
-from youziloadlab_api.main import create_app
 
-
-def test_create_run_starts_in_created_state() -> None:
-    client = TestClient(create_app())
+def test_create_run_starts_in_created_state(authenticated_client: TestClient) -> None:
+    client = authenticated_client
     target_name = f"openai compat {uuid4()}"
     target = client.post(
         "/api/targets",
@@ -46,8 +44,8 @@ def test_create_run_starts_in_created_state() -> None:
     assert any(run["id"] == body["id"] for run in list_response.json())
 
 
-def test_create_run_rejects_unknown_target() -> None:
-    client = TestClient(create_app())
+def test_create_run_rejects_unknown_target(authenticated_client: TestClient) -> None:
+    client = authenticated_client
 
     response = client.post(
         "/api/runs",
@@ -63,8 +61,8 @@ def test_create_run_rejects_unknown_target() -> None:
     assert response.json()["detail"] == "Target not found"
 
 
-def test_create_run_rejects_unknown_scenario() -> None:
-    client = TestClient(create_app())
+def test_create_run_rejects_unknown_scenario(authenticated_client: TestClient) -> None:
+    client = authenticated_client
     target_name = f"scenario target {uuid4()}"
     target = client.post(
         "/api/targets",

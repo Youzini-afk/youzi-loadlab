@@ -4,3 +4,12 @@ export type HealthResponse = {
   environment: string;
   timestamp: string;
 };
+
+export type AuthUser = {
+  username: string;
+};
+
+export type AuthStatus = {
+  authenticated: boolean;
+  user: AuthUser | null;
+};

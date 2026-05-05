@@ -10,7 +10,5 @@ services:
       DATABASE_URL: sqlite:////data/youziloadlab.db
       DATA_DIR: /data
       RUNNER_WORKDIR: /data/runs
-      MAX_CONCURRENT_RUNS: "1"
-      MAX_USERS_PER_RUN: "200"
     volumes:
       - ./data:/data

@@ -10,8 +10,6 @@ YouziLoadLab deploys as a single Dockerfile-based Zeabur service. The image buil
 - `DATABASE_URL=sqlite:////data/youziloadlab.db`
 - `DATA_DIR=/data`
 - `RUNNER_WORKDIR=/data/runs`
-- `MAX_CONCURRENT_RUNS=1`
-- `MAX_USERS_PER_RUN=200`
 
 ## Volume
 
@@ -42,6 +40,8 @@ https://<your-zeabur-domain>/
 ```
 
 API routes remain under `/api/*`, and the single-page app fallback serves `index.html` for WebUI client-side routes such as `/runs/<run-id>`.
+
+The WebUI requires login before operators can configure targets, save secrets, view scenarios, or create runs. Use `ADMIN_PASSWORD` as the login password.
 
 ## Local Docker Validation
 

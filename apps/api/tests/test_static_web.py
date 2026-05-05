@@ -27,4 +27,10 @@ def test_static_web_root_spa_fallback_and_api_routes_remain_available(tmp_path: 
     assert health_response.json()["status"] == "ok"
 
     missing_api_response = client.get("/api/not-a-real-route")
-    assert missing_api_response.status_code == 404
+    assert missing_api_response.status_code == 401
+
+    login_response = client.post("/api/auth/login", json={"password": "dev-admin-password"})
+    assert login_response.status_code == 200
+
+    authenticated_missing_api_response = client.get("/api/not-a-real-route")
+    assert authenticated_missing_api_response.status_code == 404

@@ -2,11 +2,9 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
-from youziloadlab_api.main import create_app
 
-
-def test_secret_create_list_never_returns_plaintext() -> None:
-    client = TestClient(create_app())
+def test_secret_create_list_never_returns_plaintext(authenticated_client: TestClient) -> None:
+    client = authenticated_client
     unique_suffix = uuid4().hex
     secret_name = f"admin password {unique_suffix}"
     plaintext = f"super-secret-value-{unique_suffix}"

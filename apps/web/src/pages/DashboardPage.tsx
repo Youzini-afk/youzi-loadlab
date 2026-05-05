@@ -1,11 +1,24 @@
-import { Box, Card, CardContent, Chip, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, Chip, Typography } from '@mui/material';
 
-export function DashboardPage() {
+type DashboardPageProps = {
+  username: string;
+  onLogout: () => Promise<void>;
+};
+
+export function DashboardPage({ username, onLogout }: DashboardPageProps) {
   return (
     <Box sx={{ p: 4, display: 'grid', gap: 2 }}>
-      <Typography variant="h4" fontWeight={700}>
-        YouziLoadLab
-      </Typography>
+      <Box sx={{ alignItems: 'center', display: 'flex', gap: 2, justifyContent: 'space-between' }}>
+        <Box>
+          <Typography variant="h4" fontWeight={700}>
+            YouziLoadLab
+          </Typography>
+          <Typography color="text.secondary">当前登录：{username}</Typography>
+        </Box>
+        <Button onClick={onLogout} variant="outlined">
+          退出登录
+        </Button>
+      </Box>
       <Typography color="text.secondary">
         WebUI load testing for NashiYard and OpenAI-compatible API gateways.
       </Typography>

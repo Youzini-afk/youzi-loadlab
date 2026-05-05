@@ -2,11 +2,9 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
-from youziloadlab_api.main import create_app
 
-
-def test_create_and_list_targets() -> None:
-    client = TestClient(create_app())
+def test_create_and_list_targets(authenticated_client: TestClient) -> None:
+    client = authenticated_client
     target_name = f"local nashiyard {uuid4()}"
 
     response = client.post(

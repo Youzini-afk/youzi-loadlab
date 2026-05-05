@@ -453,9 +453,8 @@ Use a shared JSON shape across scenarios:
 - Store only secret fingerprints and masked previews.
 - Redact `sk-`, `fk-`, `Bearer`, `Authorization`, `Cookie`, and provider key patterns from logs.
 - Never include plaintext keys in reports.
-- Add a hard max concurrency guard at API validation layer.
 - Add operator confirmation for destructive cleanup.
-- Add `ALLOW_PUBLIC_RUNS=false` default; when false, require a simple admin password login for WebUI.
+- Require admin password login before WebUI/API operations.
 
 ## Zeabur Deployment
 
@@ -470,15 +469,9 @@ Required env vars:
 - `DATABASE_URL=sqlite:////data/youziloadlab.db`
 - `DATA_DIR=/data`
 - `RUNNER_WORKDIR=/data/runs`
-- `MAX_CONCURRENT_RUNS=1`
-- `MAX_USERS_PER_RUN=200`
 
 Zeabur volume:
 - mount `/data` for SQLite, reports, and run artifacts.
-
-### Why `MAX_CONCURRENT_RUNS=1` by default
-
-A single Zeabur instance should not accidentally launch multiple high-pressure runs and distort results or overload upstream provider quotas. V2 can support worker queues and multiple instances.
 
 ## Quality Gates
 
@@ -521,4 +514,3 @@ This document intentionally contains no `TBD`, `TODO`, `implement later`, or vag
 ### Type consistency
 
 The scenario IDs, table names, route names, and config property names are consistent across sections.
-

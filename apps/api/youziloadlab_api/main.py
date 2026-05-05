@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from youziloadlab_api.core.config import get_settings
+from youziloadlab_api.middleware.auth import require_authenticated_api
+from youziloadlab_api.modules.auth.router import router as auth_router
 from youziloadlab_api.modules.health.router import router as health_router
 from youziloadlab_api.modules.reports.router import router as reports_router
 from youziloadlab_api.modules.runs.router import router as runs_router
@@ -25,6 +27,8 @@ def create_app(static_dir: Path | str | None = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.middleware("http")(require_authenticated_api)
+    app.include_router(auth_router, prefix="/api")
     app.include_router(health_router, prefix="/api")
     app.include_router(reports_router, prefix="/api")
     app.include_router(runs_router, prefix="/api")

@@ -130,9 +130,6 @@ ADMIN_PASSWORD=replace-with-local-admin-password
 DATABASE_URL=sqlite:///./youziloadlab.dev.db
 DATA_DIR=./data
 RUNNER_WORKDIR=./data/runs
-MAX_CONCURRENT_RUNS=1
-MAX_USERS_PER_RUN=200
-ALLOW_PUBLIC_RUNS=false
 CORS_ORIGINS=http://localhost:5173,http://localhost:8000
 ```
 
@@ -274,9 +271,6 @@ class Settings(BaseSettings):
     database_url: str = Field(default="sqlite:///./youziloadlab.dev.db", alias="DATABASE_URL")
     data_dir: str = Field(default="./data", alias="DATA_DIR")
     runner_workdir: str = Field(default="./data/runs", alias="RUNNER_WORKDIR")
-    max_concurrent_runs: int = Field(default=1, alias="MAX_CONCURRENT_RUNS")
-    max_users_per_run: int = Field(default=200, alias="MAX_USERS_PER_RUN")
-    allow_public_runs: bool = Field(default=False, alias="ALLOW_PUBLIC_RUNS")
     cors_origins: str = Field(default="http://localhost:5173,http://localhost:8000", alias="CORS_ORIGINS")
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", populate_by_name=True)
@@ -2023,8 +2017,6 @@ Create `docs/deployment-zeabur.md`:
 - `DATABASE_URL=sqlite:////data/youziloadlab.db`
 - `DATA_DIR=/data`
 - `RUNNER_WORKDIR=/data/runs`
-- `MAX_CONCURRENT_RUNS=1`
-- `MAX_USERS_PER_RUN=200`
 
 ## Volume
 
