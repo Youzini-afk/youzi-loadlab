@@ -25,7 +25,7 @@ def _get_option(parsed_options: Any, name: str, default: Any) -> Any:
     return getattr(parsed_options, name, default)
 
 
-@events.init_command_line_parser.add_listener
+@events.init_command_line_parser.add_listener  # type: ignore[untyped-decorator]
 def add_openai_chat_options(parser: Any) -> None:
     parser.add_argument("--token", env_var="YOUZILOADLAB_TOKEN", default="")
     parser.add_argument("--model", env_var="YOUZILOADLAB_MODEL", default="gpt-4o-mini")

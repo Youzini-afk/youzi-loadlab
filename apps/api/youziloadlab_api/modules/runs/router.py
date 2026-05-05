@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 
+from youziloadlab_api.db.models import Run
 from youziloadlab_api.db.session import get_session, init_db
 from youziloadlab_api.schemas.run import RunCreate, RunRead
 from youziloadlab_api.services.run_orchestrator import (
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/runs", tags=["runs"])
 
 
 @router.post("", response_model=RunRead, status_code=status.HTTP_201_CREATED)
-def create_run_endpoint(payload: RunCreate, session: Session = Depends(get_session)):
+def create_run_endpoint(payload: RunCreate, session: Session = Depends(get_session)) -> Run:
     init_db()
     try:
         return create_run(session, payload)
@@ -25,6 +26,6 @@ def create_run_endpoint(payload: RunCreate, session: Session = Depends(get_sessi
 
 
 @router.get("", response_model=list[RunRead])
-def list_runs_endpoint(session: Session = Depends(get_session)):
+def list_runs_endpoint(session: Session = Depends(get_session)) -> list[Run]:
     init_db()
     return list_runs(session)

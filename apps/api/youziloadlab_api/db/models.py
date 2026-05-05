@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 from uuid import uuid4
 
 from sqlalchemy import Column
@@ -43,7 +44,7 @@ class ScenarioDefinition(TimestampMixin, table=True):
     title: str = Field(min_length=1, max_length=160)
     description: str = Field(default="")
     version: str = Field(default="0.1.0", max_length=40)
-    schema_json: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    schema_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))  # type: ignore[assignment]
     enabled: bool = Field(default=True, index=True)
 
 
@@ -54,7 +55,7 @@ class Run(TimestampMixin, table=True):
     target_id: str = Field(foreign_key="targets.id", index=True)
     scenario_id: str = Field(foreign_key="scenario_definitions.id", index=True)
     status: str = Field(default="created", index=True, max_length=40)
-    config_json: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    config_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
     locust_web_url: str | None = Field(default=None, max_length=500)
     started_at: datetime | None = Field(default=None)
     finished_at: datetime | None = Field(default=None)
@@ -68,7 +69,7 @@ class RunEvent(SQLModel, table=True):
     level: str = Field(default="info", max_length=20)
     event_type: str = Field(index=True, max_length=80)
     message: str
-    payload_json: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    payload_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
     created_at: datetime = Field(default_factory=utc_now, nullable=False, index=True)
 
 
@@ -85,8 +86,8 @@ class RunMetricsSnapshot(SQLModel, table=True):
     p90_latency_ms: float = 0
     p95_latency_ms: float = 0
     p99_latency_ms: float = 0
-    status_counts_json: dict = Field(default_factory=dict, sa_column=Column(JSON))
-    error_counts_json: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    status_counts_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
+    error_counts_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
     tokens_total: int = 0
 
 
@@ -94,5 +95,5 @@ class Report(TimestampMixin, table=True):
     __tablename__ = "reports"
     id: str = Field(default_factory=new_id, primary_key=True)
     run_id: str = Field(foreign_key="runs.id", unique=True, index=True)
-    summary_json: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    summary_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
     markdown: str

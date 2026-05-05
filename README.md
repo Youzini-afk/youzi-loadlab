@@ -20,3 +20,7 @@ pnpm install
 pytest apps/api/tests runner/tests -q
 uvicorn youziloadlab_api.main:app --app-dir apps/api --reload
 ```
+
+## Validation
+
+See `docs/validation.md` for the full pre-release validation checklist.

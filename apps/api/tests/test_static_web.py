@@ -1,9 +1,11 @@
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from youziloadlab_api.main import create_app
 
 
-def test_static_web_root_spa_fallback_and_api_routes_remain_available(tmp_path) -> None:
+def test_static_web_root_spa_fallback_and_api_routes_remain_available(tmp_path: Path) -> None:
     index_html = "<!doctype html><html><body><div id=\"root\">YouziLoadLab</div></body></html>"
     (tmp_path / "index.html").write_text(index_html, encoding="utf-8")
 

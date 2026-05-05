@@ -1,3 +1,5 @@
+from typing import Any
+
 import httpx
 
 
@@ -24,7 +26,7 @@ class NashiYardAdminClient:
 
     def build_create_user_payload(
         self, username: str, password: str, group: str
-    ) -> dict:
+    ) -> dict[str, Any]:
         return {
             "username": username,
             "password": password,

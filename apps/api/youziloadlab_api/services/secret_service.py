@@ -1,3 +1,5 @@
+from typing import Any, cast
+
 from sqlmodel import Session, select
 
 from youziloadlab_api.core.config import get_settings
@@ -34,5 +36,5 @@ def create_secret(session: Session, data: SecretCreate) -> SecretRead:
 
 
 def list_secrets(session: Session) -> list[SecretRead]:
-    rows = session.exec(select(Secret).order_by(Secret.created_at.desc())).all()
+    rows = session.exec(select(Secret).order_by(cast(Any, Secret.created_at).desc())).all()
     return [_read_model(row) for row in rows]

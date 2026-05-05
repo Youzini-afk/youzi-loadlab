@@ -1,6 +1,9 @@
+from typing import Any
+
+
 def build_chat_payload(
     *, model: str, prompt: str, max_tokens: int, temperature: float, stream: bool
-) -> dict:
+) -> dict[str, Any]:
     return {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -8,4 +11,3 @@ def build_chat_payload(
         "temperature": temperature,
         "stream": stream,
     }
-

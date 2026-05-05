@@ -1,3 +1,5 @@
+from typing import Any, cast
+
 from sqlmodel import Session, select
 
 from youziloadlab_api.db.models import Run, Target
@@ -43,4 +45,4 @@ def create_run(
 
 
 def list_runs(session: Session) -> list[Run]:
-    return list(session.exec(select(Run).order_by(Run.created_at.desc())).all())
+    return list(session.exec(select(Run).order_by(cast(Any, Run.created_at).desc())).all())
