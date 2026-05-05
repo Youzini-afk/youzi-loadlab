@@ -18,6 +18,14 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8.3.0", "pytest-asyncio>=0.24.0", "ruff>=0.6.0", "mypy>=1.11.0"]
 
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["apps/api", "runner"]
+include = ["youziloadlab_api*", "youziloadlab_runner*"]
+
 [tool.pytest.ini_options]
 testpaths = ["apps/api/tests", "runner/tests"]
 pythonpath = ["apps/api", "runner"]
