@@ -1,4 +1,7 @@
-FIREWORKS_SCHEMA: dict = {
+from typing import Any
+
+
+FIREWORKS_SCHEMA: dict[str, Any] = {
     "type": "object",
     "required": ["setup", "request", "loadProfile", "cleanup"],
     "properties": {
@@ -46,7 +49,7 @@ FIREWORKS_SCHEMA: dict = {
     },
 }
 
-POLLING_SCHEMA: dict = {
+POLLING_SCHEMA: dict[str, Any] = {
     "type": "object",
     "required": ["polling", "loadProfile"],
     "properties": {
