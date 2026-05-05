@@ -1,0 +1,33 @@
+[project]
+name = "youziloadlab"
+version = "0.1.0"
+description = "WebUI load-testing platform for NashiYard and OpenAI-compatible APIs"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+  "sqlmodel>=0.0.22",
+  "httpx>=0.27.0",
+  "pydantic-settings>=2.4.0",
+  "cryptography>=43.0.0",
+  "locust>=2.32.0",
+  "python-multipart>=0.0.9",
+  "orjson>=3.10.0"
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3.0", "pytest-asyncio>=0.24.0", "ruff>=0.6.0", "mypy>=1.11.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["apps/api/tests", "runner/tests"]
+pythonpath = ["apps/api", "runner"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = ["apps/api", "runner"]
