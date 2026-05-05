@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from youziloadlab_api.core.config import get_settings
 from youziloadlab_api.modules.health.router import router as health_router
+from youziloadlab_api.modules.targets.router import router as targets_router
 
 
 def create_app() -> FastAPI:
@@ -16,6 +17,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(health_router, prefix="/api")
+    app.include_router(targets_router, prefix="/api")
     return app
 
 
