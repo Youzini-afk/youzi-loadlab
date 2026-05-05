@@ -1,4 +1,4 @@
-import type { AuthStatus, HealthResponse, Run, RunEvent, RunMetrics, Scenario, Target } from '../types/api';
+import type { AuthStatus, HealthResponse, Run, RunEvent, RunMetrics, Scenario, Secret, Target } from '../types/api';
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
@@ -75,4 +75,21 @@ export async function getRunEvents(id: string): Promise<RunEvent[]> {
 
 export async function getRunMetrics(id: string): Promise<RunMetrics[]> {
   return request(`/api/runs/${id}/metrics`);
+}
+
+export async function listSecrets(): Promise<Secret[]> {
+  return request('/api/secrets');
+}
+
+export async function createSecret(payload: {
+  target_id: string | null;
+  name: string;
+  kind: string;
+  plaintext: string;
+}): Promise<Secret> {
+  return request('/api/secrets', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
 }

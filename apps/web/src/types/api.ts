@@ -55,6 +55,15 @@ export type RunEvent = {
   created_at: string;
 };
 
+export type Secret = {
+  id: string;
+  target_id: string | null;
+  name: string;
+  kind: string;
+  fingerprint: string;
+  masked: string;
+};
+
 export type RunMetrics = {
   id: number;
   run_id: string;
