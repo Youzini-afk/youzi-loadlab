@@ -6,7 +6,16 @@ import { DashboardPage } from './pages/DashboardPage';
 import { LoginPage } from './pages/LoginPage';
 import type { AuthUser } from './types/api';
 
-const theme = createTheme({ palette: { mode: 'light' } });
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: { main: '#6366f1' },
+    secondary: { main: '#22d3ee' },
+    background: { default: '#0f0f1a', paper: '#1a1a2e' },
+  },
+  shape: { borderRadius: 12 },
+  typography: { fontFamily: '"Inter", "Roboto", sans-serif' },
+});
 
 export default function App() {
   const [loading, setLoading] = useState(true);
