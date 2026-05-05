@@ -1,0 +1,5 @@
+{
+  "name": "youziloadlab",
+  "framework": "dockerfile",
+  "port": 8000
+}
