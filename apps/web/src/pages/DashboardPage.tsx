@@ -3,7 +3,6 @@ import { Box, Button, Tab, Tabs, Typography } from '@mui/material';
 import { LaunchDrawer } from '../components/LaunchDrawer';
 import { RunDetailPage } from './RunDetailPage';
 import { TargetsPage } from './TargetsPage';
-import { SecretsPage } from './SecretsPage';
 import { RunsPage } from './RunsPage';
 import { ScenariosTab } from './ScenariosTab';
 import type { Run } from '../types/api';
@@ -37,8 +36,7 @@ export function DashboardPage({ username, onLogout }: DashboardPageProps) {
       <Box sx={{ borderBottom: '1px solid rgba(255,255,255,0.06)', px: 4, bgcolor: 'rgba(15,15,26,0.6)' }}>
         <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ minHeight: 44, '& .MuiTab-root': { minHeight: 44, fontSize: '0.85rem' } }}>
           <Tab label="场景" />
-          <Tab label="Targets" />
-          <Tab label="Secrets" />
+          <Tab label="提供商" />
           <Tab label="历史记录" />
         </Tabs>
       </Box>
@@ -47,8 +45,7 @@ export function DashboardPage({ username, onLogout }: DashboardPageProps) {
       <Box sx={{ p: 4, maxWidth: 960, mx: 'auto' }}>
         {tab === 0 && <ScenariosTab onLaunch={(id, name) => setDrawerScenario({ id, name })} />}
         {tab === 1 && <TargetsPage />}
-        {tab === 2 && <SecretsPage />}
-        {tab === 3 && <RunsPage onOpenRun={setActiveRun} />}
+        {tab === 2 && <RunsPage onOpenRun={setActiveRun} />}
       </Box>
 
       {drawerScenario && (

@@ -36,7 +36,9 @@ export async function listTargets(): Promise<Target[]> {
   return request('/api/targets');
 }
 
-export async function createTarget(payload: Omit<Target, 'id'>): Promise<Target> {
+export async function createTarget(payload: Omit<Target, 'id'> & {
+  secret?: { name: string; kind: string; plaintext: string } | null;
+}): Promise<Target> {
   return request('/api/targets', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
