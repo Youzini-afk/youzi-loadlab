@@ -11,7 +11,7 @@ apps/web/dist/
 *.db
 *.sqlite
 /data/
-runs/
+/runs/
 artifacts/
 .DS_Store
 Thumbs.db
