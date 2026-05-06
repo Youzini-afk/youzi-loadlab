@@ -7,7 +7,7 @@ from youziloadlab_api.services.locust_process import (
 )
 
 
-def test_load_execution_profile_prefers_first_phase() -> None:
+def test_load_execution_profile_aggregates_phase_plan() -> None:
     profile = load_execution_profile(
         {
             "loadProfile": {
@@ -20,9 +20,9 @@ def test_load_execution_profile_prefers_first_phase() -> None:
         }
     )
 
-    assert profile.users == 5
-    assert profile.spawn_rate == 2
-    assert profile.duration_seconds == 60
+    assert profile.users == 50
+    assert profile.spawn_rate == 5
+    assert profile.duration_seconds == 660
 
 
 def test_build_locust_env_uses_request_values_without_command_line_secrets() -> None:
@@ -43,6 +43,27 @@ def test_build_locust_env_uses_request_values_without_command_line_secrets() -> 
     assert env["YOUZILOADLAB_MODEL"] == "gpt-4o-mini"
     assert env["YOUZILOADLAB_MAX_TOKENS"] == "64"
     assert env["YOUZILOADLAB_STREAM_RATIO"] == "0.2"
+
+
+def test_build_locust_env_exports_phases_and_polling_auth() -> None:
+    env = build_locust_env(
+        {
+            "request": {"model": "gpt-4o-mini"},
+            "polling": {
+                "foregroundChatRatio": 0.4,
+                "authHeader": "Bearer admin-token",
+                "cookie": "session=abc",
+            },
+            "loadProfile": {
+                "phases": [{"name": "smoke", "users": 1, "spawnRate": 1, "durationSeconds": 5}]
+            },
+        }
+    )
+
+    assert env["YOUZILOADLAB_FOREGROUND_CHAT_RATIO"] == "0.4"
+    assert env["YOUZILOADLAB_POLLING_AUTH_HEADER"] == "Bearer admin-token"
+    assert env["YOUZILOADLAB_POLLING_COOKIE"] == "session=abc"
+    assert "smoke" in env["YOUZILOADLAB_PHASES_JSON"]
 
 
 def test_parse_locust_stats_csv_reads_aggregated_row(tmp_path: Path) -> None:

@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 from typing import Any
@@ -5,7 +6,7 @@ from typing import Any
 if "pytest" in sys.modules:
     os.environ.setdefault("LOCUST_SKIP_MONKEY_PATCH", "1")
 
-from locust import HttpUser, between, task
+from locust import HttpUser, LoadTestShape, between, task
 
 from youziloadlab_runner.contracts import LoadPhase
 from youziloadlab_runner.payloads import build_chat_payload
@@ -25,6 +26,52 @@ def default_fireworks_phases() -> list[LoadPhase]:
         LoadPhase("fault_injection", 600, 30, 3),
         LoadPhase("recovery", 300, 20, 2),
     ]
+
+
+def fireworks_phases_json(phases: list[LoadPhase]) -> str:
+    return json.dumps(
+        [
+            {
+                "name": phase.name,
+                "durationSeconds": phase.duration_seconds,
+                "users": phase.users,
+                "spawnRate": phase.spawn_rate,
+            }
+            for phase in phases
+        ],
+        separators=(",", ":"),
+    )
+
+
+def load_fireworks_phases_from_env(value: str | None = None) -> list[LoadPhase]:
+    raw_value = os.environ.get("YOUZILOADLAB_PHASES_JSON") if value is None else value
+    if not raw_value:
+        return []
+    try:
+        payload = json.loads(raw_value)
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(payload, list):
+        return []
+    phases: list[LoadPhase] = []
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        phases.append(
+            LoadPhase(
+                name=str(item.get("name", f"phase_{len(phases) + 1}")),
+                duration_seconds=_positive_int(
+                    item.get("durationSeconds", item.get("duration_seconds")),
+                    default=60,
+                ),
+                users=_positive_int(item.get("users"), default=1),
+                spawn_rate=_positive_float(
+                    item.get("spawnRate", item.get("spawn_rate")),
+                    default=1,
+                ),
+            )
+        )
+    return phases
 
 
 def _get_option(parsed_options: Any, name: str, default: Any) -> Any:
@@ -58,3 +105,36 @@ class NashiYardFireworksUser(HttpUser):
             ),
             name="Fireworks /v1/chat/completions",
         )
+
+
+_ENV_FIREWORKS_PHASES = load_fireworks_phases_from_env()
+
+if _ENV_FIREWORKS_PHASES:
+
+    class FireworksPhaseShape(LoadTestShape):
+        phases = _ENV_FIREWORKS_PHASES
+
+        def tick(self) -> tuple[int, float] | None:
+            elapsed = self.get_run_time()  # type: ignore[no-untyped-call]
+            total = 0
+            for phase in self.phases:
+                total += phase.duration_seconds
+                if elapsed < total:
+                    return phase.users, phase.spawn_rate
+            return None
+
+
+def _positive_int(value: Any, *, default: int) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return default
+    return parsed if parsed > 0 else default
+
+
+def _positive_float(value: Any, *, default: float) -> float:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return default
+    return parsed if parsed > 0 else default

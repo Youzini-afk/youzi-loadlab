@@ -221,17 +221,23 @@ def load_execution_profile(config: dict[str, Any]) -> LoadExecutionProfile:
     load_profile = _dict_value(config, "loadProfile")
     phases = load_profile.get("phases")
     if isinstance(phases, list) and phases:
-        first_phase = phases[0]
-        if isinstance(first_phase, dict):
+        phase_dicts = [phase for phase in phases if isinstance(phase, dict)]
+        if phase_dicts:
             return LoadExecutionProfile(
-                users=_positive_int(first_phase.get("users"), default=1),
-                spawn_rate=_positive_float(
-                    first_phase.get("spawnRate", first_phase.get("spawn_rate")),
-                    default=1,
+                users=max(_positive_int(phase.get("users"), default=1) for phase in phase_dicts),
+                spawn_rate=max(
+                    _positive_float(
+                        phase.get("spawnRate", phase.get("spawn_rate")),
+                        default=1,
+                    )
+                    for phase in phase_dicts
                 ),
-                duration_seconds=_positive_int(
-                    first_phase.get("durationSeconds", first_phase.get("duration_seconds")),
-                    default=30,
+                duration_seconds=sum(
+                    _positive_int(
+                        phase.get("durationSeconds", phase.get("duration_seconds")),
+                        default=30,
+                    )
+                    for phase in phase_dicts
                 ),
             )
     return LoadExecutionProfile(
@@ -262,6 +268,21 @@ def build_locust_env(config: dict[str, Any]) -> dict[str, str]:
         env["YOUZILOADLAB_FOREGROUND_CHAT_RATIO"] = str(
             polling.get("foregroundChatRatio", polling.get("foreground_chat_ratio", 0.3))
         )
+        env["YOUZILOADLAB_POLLING_AUTH_HEADER"] = str(polling.get("authHeader", ""))
+        env["YOUZILOADLAB_POLLING_COOKIE"] = str(polling.get("cookie", ""))
+        env["YOUZILOADLAB_POLLING_PROMPT"] = str(
+            request.get("prompt", polling.get("prompt", "Short health check response."))
+        )
+        env["YOUZILOADLAB_POLLING_MAX_TOKENS"] = str(
+            request.get("maxTokens", polling.get("maxTokens", 64))
+        )
+        env["YOUZILOADLAB_POLLING_TEMPERATURE"] = str(
+            request.get("temperature", polling.get("temperature", 0.2))
+        )
+    load_profile = _dict_value(config, "loadProfile")
+    phases = load_profile.get("phases")
+    if isinstance(phases, list) and phases:
+        env["YOUZILOADLAB_PHASES_JSON"] = json.dumps(phases, separators=(",", ":"))
     return env
 
 

@@ -1,4 +1,5 @@
 from youziloadlab_runner.scenarios.nashiyard_polling_system import (
+    build_polling_headers,
     build_polling_tasks,
     should_run_foreground_chat,
 )
@@ -28,3 +29,9 @@ def test_should_run_foreground_chat_uses_ratio() -> None:
 def test_should_run_foreground_chat_clamps_ratio() -> None:
     assert should_run_foreground_chat(-1.0, random_value=0.0) is False
     assert should_run_foreground_chat(2.0, random_value=0.99) is True
+
+
+def test_build_polling_headers_supports_cookie_and_bearer() -> None:
+    headers = build_polling_headers(auth_header="Bearer admin", cookie="session=abc")
+
+    assert headers == {"Authorization": "Bearer admin", "Cookie": "session=abc"}

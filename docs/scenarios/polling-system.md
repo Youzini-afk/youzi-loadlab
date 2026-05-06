@@ -15,7 +15,7 @@ The current runner implements Locust tasks for polling requests and an optional 
 | Polling task planner | `runner/youziloadlab_runner/scenarios/nashiyard_polling_system.py` | Implemented by `build_polling_tasks()`. |
 | Foreground chat ratio helper | `runner/youziloadlab_runner/scenarios/nashiyard_polling_system.py` | Implemented by `should_run_foreground_chat()`. |
 | Locust traffic class | `runner/youziloadlab_runner/scenarios/nashiyard_polling_system.py` | Implemented as `NashiYardPollingUser`. |
-| Endpoint-specific auth orchestration | N/A | Not yet implemented. |
+| Endpoint-specific auth headers/cookies | `runner/youziloadlab_runner/scenarios/nashiyard_polling_system.py` | Implemented through `--polling-auth-header` / `--polling-cookie` and corresponding env vars. |
 
 ## Default Polling Tasks
 
@@ -42,7 +42,7 @@ Default foreground chat options used by the Locust class are:
 | Temperature option | `--polling-temperature`, default `0.2` |
 | Foreground ratio option | `--foreground-chat-ratio`, default `0.3` |
 
-The current command-line parser is shared with `openai_chat_load.py`, so standard options such as `--token` and `--model` are available. If a custom polling-only option is not registered in a local Locust version, use environment defaults or wire the option into the shared parser before relying on it in automation.
+The polling runner registers its own polling options in addition to the shared OpenAI chat options. Use `--polling-auth-header` for bearer-style admin/user tokens, `--polling-cookie` for session cookies, and `--foreground-chat-ratio` to control mixed foreground traffic.
 
 ## Required Inputs
 
@@ -71,7 +71,7 @@ py -3.13 -m locust `
   --model gpt-4o-mini
 ```
 
-If the target admin endpoints require browser-session cookies or admin tokens, add that authentication support to the runner before using this command for real measurements. Otherwise, repeated `401` or `403` responses only prove that the endpoints are protected.
+If the target admin endpoints require browser-session cookies or admin tokens, provide them through `--polling-cookie` or `--polling-auth-header`. Otherwise, repeated `401` or `403` responses only prove that the endpoints are protected.
 
 ## Suggested Load Profiles
 

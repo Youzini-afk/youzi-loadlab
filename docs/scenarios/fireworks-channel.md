@@ -13,6 +13,7 @@ The current runner implements the chat load generator and phase/user-name planni
 | Scenario registry ID | `apps/api/youziloadlab_api/services/scenario_registry.py` | Implemented as `nashiyard-fireworks-channel`. |
 | Config schema | `runner/youziloadlab_runner/scenarios/config_schemas.py` | Implemented as `FIREWORKS_SCHEMA`. |
 | Phase defaults | `runner/youziloadlab_runner/scenarios/nashiyard_fireworks_channel.py` | Implemented by `default_fireworks_phases()`. |
+| Locust phase shape | `runner/youziloadlab_runner/scenarios/nashiyard_fireworks_channel.py` | Implemented through `YOUZILOADLAB_PHASES_JSON` when WebUI/API launches a multi-phase run. |
 | Test username planner | `runner/youziloadlab_runner/scenarios/nashiyard_fireworks_channel.py` | Implemented by `build_test_usernames()`. |
 | Locust traffic class | `runner/youziloadlab_runner/scenarios/nashiyard_fireworks_channel.py` | Implemented as `NashiYardFireworksUser`. |
 | Automatic admin setup/cleanup | N/A | Not yet implemented in this scenario runner. |
@@ -48,7 +49,7 @@ The current runner implements the chat load generator and phase/user-name planni
 | `fault_injection` | 600s | 30 | 3 |
 | `recovery` | 300s | 20 | 2 |
 
-These values are returned by `default_fireworks_phases()`. The current Locust command must be run once per desired phase or launched by the API run orchestrator with equivalent users, spawn rate, and runtime settings.
+These values are returned by `default_fireworks_phases()`. WebUI/API-managed runs can pass the full phase list through `YOUZILOADLAB_PHASES_JSON`; local one-off commands can still run a single phase with explicit users, spawn rate, and runtime settings.
 
 ## Required Inputs
 
