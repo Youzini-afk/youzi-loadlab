@@ -11,7 +11,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { createRun, listTargets } from '../api/client';
+import { createRun, listTargets, startRun } from '../api/client';
 import type { Run, Target } from '../types/api';
 
 type Props = {
@@ -26,6 +26,9 @@ export function LaunchDrawer({ scenarioId, scenarioName, open, onClose, onLaunch
   const [targets, setTargets] = useState<Target[]>([]);
   const [targetId, setTargetId] = useState('');
   const [runName, setRunName] = useState('');
+  const [users, setUsers] = useState('1');
+  const [spawnRate, setSpawnRate] = useState('1');
+  const [durationSeconds, setDurationSeconds] = useState('30');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,9 +48,13 @@ export function LaunchDrawer({ scenarioId, scenarioName, open, onClose, onLaunch
         name: runName,
         target_id: targetId,
         scenario_id: scenarioId,
-        config_json: {},
+        config_json: buildRunConfig(scenarioId, targets.find((target) => target.id === targetId), {
+          users: Number(users) || 1,
+          spawnRate: Number(spawnRate) || 1,
+          durationSeconds: Number(durationSeconds) || 30,
+        }),
       });
-      onLaunched(run);
+      onLaunched(await startRun(run.id));
     } catch (e) {
       setError(e instanceof Error ? e.message : '启动失败');
     } finally {
@@ -95,6 +102,30 @@ export function LaunchDrawer({ scenarioId, scenarioName, open, onClose, onLaunch
           </Select>
         </FormControl>
 
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1.5 }}>
+          <TextField
+            label="并发用户"
+            size="small"
+            type="number"
+            value={users}
+            onChange={(e) => setUsers(e.target.value)}
+          />
+          <TextField
+            label="Spawn/s"
+            size="small"
+            type="number"
+            value={spawnRate}
+            onChange={(e) => setSpawnRate(e.target.value)}
+          />
+          <TextField
+            label="秒"
+            size="small"
+            type="number"
+            value={durationSeconds}
+            onChange={(e) => setDurationSeconds(e.target.value)}
+          />
+        </Box>
+
         {targets.length === 0 && (
           <Alert severity="warning" sx={{ fontSize: '0.75rem' }}>
             需要先在 Targets 页面创建一个测试目标。
@@ -117,4 +148,38 @@ export function LaunchDrawer({ scenarioId, scenarioName, open, onClose, onLaunch
       </Box>
     </Drawer>
   );
+}
+
+function buildRunConfig(
+  scenarioId: string,
+  target: Target | undefined,
+  load: { users: number; spawnRate: number; durationSeconds: number },
+): Record<string, unknown> {
+  const request = {
+    model: target?.default_model || defaultModelForScenario(scenarioId),
+    maxTokens: 128,
+    temperature: 0.2,
+    streamRatio: scenarioId === 'nashiyard-fireworks-channel' ? 0.1 : 0,
+  };
+  if (scenarioId === 'nashiyard-polling-system') {
+    return {
+      polling: {
+        includeForegroundChat: true,
+        foregroundChatRatio: 0.3,
+      },
+      request,
+      loadProfile: load,
+    };
+  }
+  return {
+    request,
+    loadProfile: load,
+  };
+}
+
+function defaultModelForScenario(scenarioId: string): string {
+  if (scenarioId === 'nashiyard-fireworks-channel') {
+    return 'accounts/fireworks/models/llama-v3p1-8b-instruct';
+  }
+  return 'gpt-4o-mini';
 }

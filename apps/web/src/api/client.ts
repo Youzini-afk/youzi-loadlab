@@ -1,4 +1,4 @@
-import type { AuthStatus, HealthResponse, Run, RunEvent, RunMetrics, Scenario, Secret, Target } from '../types/api';
+import type { AuthStatus, HealthResponse, Report, Run, RunEvent, RunMetrics, Scenario, Secret, Target } from '../types/api';
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
@@ -71,12 +71,24 @@ export async function getRun(id: string): Promise<Run> {
   return request(`/api/runs/${id}`);
 }
 
+export async function startRun(id: string): Promise<Run> {
+  return request(`/api/runs/${id}/start`, { method: 'POST' });
+}
+
+export async function stopRun(id: string): Promise<Run> {
+  return request(`/api/runs/${id}/stop`, { method: 'POST' });
+}
+
 export async function getRunEvents(id: string): Promise<RunEvent[]> {
   return request(`/api/runs/${id}/events`);
 }
 
 export async function getRunMetrics(id: string): Promise<RunMetrics[]> {
   return request(`/api/runs/${id}/metrics`);
+}
+
+export async function getRunReport(id: string): Promise<Report> {
+  return request(`/api/reports/run/${id}`);
 }
 
 export async function listSecrets(): Promise<Secret[]> {

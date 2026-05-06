@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Box, Button, Chip, Typography } from '@mui/material';
-import { getRun, getRunEvents, getRunMetrics } from '../api/client';
-import type { Run, RunEvent, RunMetrics } from '../types/api';
+import { getRun, getRunEvents, getRunMetrics, getRunReport, startRun, stopRun } from '../api/client';
+import type { Report, Run, RunEvent, RunMetrics } from '../types/api';
 
 const STATUS_COLOR: Record<string, 'default' | 'primary' | 'success' | 'error' | 'warning'> = {
   created: 'default',
   running: 'primary',
-  finished: 'success',
+  completed: 'success',
+  stopped: 'warning',
   failed: 'error',
   stopping: 'warning',
 };
@@ -24,6 +25,8 @@ export function RunDetailPage({ run: initialRun, onBack }: Props) {
   const [run, setRun] = useState(initialRun);
   const [events, setEvents] = useState<RunEvent[]>([]);
   const [metrics, setMetrics] = useState<RunMetrics[]>([]);
+  const [report, setReport] = useState<Report | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const logRef = useRef<HTMLDivElement>(null);
   const polling = run.status === 'created' || run.status === 'running' || run.status === 'stopping';
 
@@ -57,6 +60,33 @@ export function RunDetailPage({ run: initialRun, onBack }: Props) {
 
   const latest = metrics[metrics.length - 1];
 
+  async function handleStart() {
+    setActionError(null);
+    try {
+      setRun(await startRun(run.id));
+    } catch (caught) {
+      setActionError(caught instanceof Error ? caught.message : '启动失败');
+    }
+  }
+
+  async function handleStop() {
+    setActionError(null);
+    try {
+      setRun(await stopRun(run.id));
+    } catch (caught) {
+      setActionError(caught instanceof Error ? caught.message : '停止失败');
+    }
+  }
+
+  async function handleReport() {
+    setActionError(null);
+    try {
+      setReport(await getRunReport(run.id));
+    } catch (caught) {
+      setActionError(caught instanceof Error ? caught.message : '报告生成失败');
+    }
+  }
+
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', p: 4, maxWidth: 960, mx: 'auto' }}>
       <Button size="small" onClick={onBack} sx={{ mb: 2, color: 'text.secondary' }}>
@@ -72,6 +102,19 @@ export function RunDetailPage({ run: initialRun, onBack }: Props) {
       </Box>
 
       {run.error_message && <Alert severity="error" sx={{ mb: 2 }}>{run.error_message}</Alert>}
+      {actionError && <Alert severity="error" sx={{ mb: 2 }}>{actionError}</Alert>}
+
+      <Box sx={{ display: 'flex', gap: 1.5, mb: 3 }}>
+        <Button disabled={run.status !== 'created'} variant="contained" onClick={handleStart}>
+          启动
+        </Button>
+        <Button disabled={!['running', 'preparing', 'stopping'].includes(run.status)} variant="outlined" onClick={handleStop}>
+          停止
+        </Button>
+        <Button variant="outlined" onClick={handleReport}>
+          生成报告
+        </Button>
+      </Box>
 
       {/* Metrics */}
       {latest && (
@@ -126,6 +169,15 @@ export function RunDetailPage({ run: initialRun, onBack }: Props) {
           <Button variant="outlined" size="small" href={run.locust_web_url} target="_blank">
             打开 Locust Web UI
           </Button>
+        </Box>
+      )}
+
+      {report && (
+        <Box sx={{ mt: 2, borderRadius: 2, bgcolor: 'background.paper', border: '1px solid rgba(255,255,255,0.07)', p: 2 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>报告预览</Typography>
+          <Box component="pre" sx={{ m: 0, whiteSpace: 'pre-wrap', fontSize: '0.75rem', color: 'text.secondary' }}>
+            {report.markdown}
+          </Box>
         </Box>
       )}
     </Box>

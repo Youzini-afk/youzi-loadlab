@@ -40,6 +40,11 @@ export type Run = {
   status: string;
   config_json: Record<string, unknown>;
   locust_web_url: string | null;
+  pid: number | null;
+  workdir: string | null;
+  command_json: string[];
+  artifacts_json: Record<string, unknown>;
+  exit_code: number | null;
   error_message: string | null;
   created_at: string;
   started_at: string | null;
@@ -52,6 +57,7 @@ export type RunEvent = {
   level: string;
   event_type: string;
   message: string;
+  payload_json: Record<string, unknown>;
   created_at: string;
 };
 
@@ -76,5 +82,14 @@ export type RunMetrics = {
   p90_latency_ms: number;
   p95_latency_ms: number;
   p99_latency_ms: number;
+  status_counts_json: Record<string, unknown>;
+  error_counts_json: Record<string, unknown>;
   tokens_total: number;
+};
+
+export type Report = {
+  id: string;
+  run_id: string;
+  summary_json: Record<string, unknown>;
+  markdown: string;
 };

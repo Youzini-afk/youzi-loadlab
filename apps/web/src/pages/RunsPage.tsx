@@ -4,7 +4,7 @@ import { listRuns } from '../api/client';
 import type { Run } from '../types/api';
 
 const STATUS_COLOR: Record<string, 'default' | 'primary' | 'success' | 'error' | 'warning'> = {
-  created: 'default', running: 'primary', finished: 'success', failed: 'error', stopping: 'warning',
+  created: 'default', running: 'primary', completed: 'success', stopped: 'warning', failed: 'error', stopping: 'warning',
 };
 
 type Props = { onOpenRun: (run: Run) => void };
