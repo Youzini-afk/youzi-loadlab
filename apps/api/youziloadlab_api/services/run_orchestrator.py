@@ -219,6 +219,7 @@ def refresh_run_status(
         message=run.error_message or f"Run {run.status}.",
         payload={"exit_code": exit_code},
     )
+    build_terminal_report(session, run.id)
     session.refresh(run)
     return run
 
@@ -272,3 +273,9 @@ def enabled_scenario_ids() -> set[str]:
 
 def create_default_locust_manager() -> LocustProcessManager:
     return LocustProcessManager(runner_workdir=get_settings().runner_workdir)
+
+
+def build_terminal_report(session: Session, run_id: str) -> None:
+    from youziloadlab_api.services.report_service import build_or_update_report
+
+    build_or_update_report(session, run_id=run_id)
