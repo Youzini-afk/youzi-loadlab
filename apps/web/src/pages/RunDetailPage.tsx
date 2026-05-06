@@ -5,6 +5,7 @@ import type { Report, Run, RunEvent, RunMetrics } from '../types/api';
 
 const STATUS_COLOR: Record<string, 'default' | 'primary' | 'success' | 'error' | 'warning'> = {
   created: 'default',
+  preparing: 'warning',
   running: 'primary',
   completed: 'success',
   stopped: 'warning',

@@ -29,6 +29,7 @@ export function LaunchDrawer({ scenarioId, scenarioName, open, onClose, onLaunch
   const [users, setUsers] = useState('1');
   const [spawnRate, setSpawnRate] = useState('1');
   const [durationSeconds, setDurationSeconds] = useState('30');
+  const [phasePreset, setPhasePreset] = useState('custom');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,6 +53,7 @@ export function LaunchDrawer({ scenarioId, scenarioName, open, onClose, onLaunch
           users: Number(users) || 1,
           spawnRate: Number(spawnRate) || 1,
           durationSeconds: Number(durationSeconds) || 30,
+          phasePreset,
         }),
       });
       onLaunched(await startRun(run.id));
@@ -126,6 +128,20 @@ export function LaunchDrawer({ scenarioId, scenarioName, open, onClose, onLaunch
           />
         </Box>
 
+        <TextField
+          select
+          label="阶段预设"
+          size="small"
+          fullWidth
+          value={phasePreset}
+          onChange={(e) => setPhasePreset(e.target.value)}
+          helperText="Smoke 用于安全冒烟；Full 会按总项目文档运行多阶段压测。"
+        >
+          <MenuItem value="custom">自定义单阶段</MenuItem>
+          <MenuItem value="smoke">Smoke 冒烟</MenuItem>
+          <MenuItem value="full">Full 文档阶段</MenuItem>
+        </TextField>
+
         {targets.length === 0 && (
           <Alert severity="warning" sx={{ fontSize: '0.75rem' }}>
             需要先在 Targets 页面创建一个测试目标。
@@ -153,7 +169,7 @@ export function LaunchDrawer({ scenarioId, scenarioName, open, onClose, onLaunch
 function buildRunConfig(
   scenarioId: string,
   target: Target | undefined,
-  load: { users: number; spawnRate: number; durationSeconds: number },
+  load: { users: number; spawnRate: number; durationSeconds: number; phasePreset: string },
 ): Record<string, unknown> {
   const request = {
     model: target?.default_model || defaultModelForScenario(scenarioId),
@@ -168,12 +184,12 @@ function buildRunConfig(
         foregroundChatRatio: 0.3,
       },
       request,
-      loadProfile: load,
+      loadProfile: buildLoadProfile(scenarioId, load),
     };
   }
   return {
     request,
-    loadProfile: load,
+    loadProfile: buildLoadProfile(scenarioId, load),
   };
 }
 
@@ -182,4 +198,49 @@ function defaultModelForScenario(scenarioId: string): string {
     return 'accounts/fireworks/models/llama-v3p1-8b-instruct';
   }
   return 'gpt-4o-mini';
+}
+
+function buildLoadProfile(
+  scenarioId: string,
+  load: { users: number; spawnRate: number; durationSeconds: number; phasePreset: string },
+): Record<string, unknown> {
+  if (load.phasePreset === 'smoke') {
+    return { phases: [smokePhase(scenarioId)] };
+  }
+  if (load.phasePreset === 'full') {
+    if (scenarioId === 'nashiyard-fireworks-channel') {
+      return {
+        phases: [
+          { name: 'smoke', durationSeconds: 60, users: 5, spawnRate: 2 },
+          { name: 'baseline', durationSeconds: 300, users: 10, spawnRate: 2 },
+          { name: 'ramp', durationSeconds: 600, users: 50, spawnRate: 5 },
+          { name: 'peak', durationSeconds: 300, users: 100, spawnRate: 10 },
+          { name: 'fault_injection', durationSeconds: 600, users: 30, spawnRate: 3 },
+          { name: 'recovery', durationSeconds: 300, users: 20, spawnRate: 2 },
+        ],
+      };
+    }
+    if (scenarioId === 'nashiyard-polling-system') {
+      return {
+        phases: [
+          { name: 'smoke', durationSeconds: 60, users: 1, spawnRate: 1 },
+          { name: 'baseline', durationSeconds: 300, users: 5, spawnRate: 1 },
+          { name: 'mixed', durationSeconds: 600, users: 20, spawnRate: 2 },
+          { name: 'peak', durationSeconds: 600, users: 50, spawnRate: 5 },
+        ],
+      };
+    }
+  }
+  return {
+    users: load.users,
+    spawnRate: load.spawnRate,
+    durationSeconds: load.durationSeconds,
+  };
+}
+
+function smokePhase(scenarioId: string): Record<string, unknown> {
+  if (scenarioId === 'nashiyard-fireworks-channel') {
+    return { name: 'smoke', durationSeconds: 60, users: 5, spawnRate: 2 };
+  }
+  return { name: 'smoke', durationSeconds: 60, users: 1, spawnRate: 1 };
 }
