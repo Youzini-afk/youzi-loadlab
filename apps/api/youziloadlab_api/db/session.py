@@ -1,6 +1,7 @@
 from collections.abc import Generator
 
 from sqlalchemy.engine import Engine
+from sqlalchemy import text
 from sqlmodel import Session, SQLModel, create_engine
 
 from youziloadlab_api.core.config import get_settings
@@ -17,6 +18,27 @@ engine = create_db_engine()
 
 def init_db() -> None:
     SQLModel.metadata.create_all(engine)
+    _ensure_sqlite_run_columns(engine)
+
+
+def _ensure_sqlite_run_columns(db_engine: Engine) -> None:
+    if not db_engine.url.drivername.startswith("sqlite"):
+        return
+    columns = {
+        "pid": "INTEGER",
+        "workdir": "VARCHAR(1000)",
+        "command_json": "JSON DEFAULT '[]'",
+        "artifacts_json": "JSON DEFAULT '{}'",
+        "exit_code": "INTEGER",
+    }
+    with db_engine.begin() as connection:
+        existing = {
+            str(row[1])
+            for row in connection.execute(text("PRAGMA table_info(runs)")).fetchall()
+        }
+        for column_name, column_type in columns.items():
+            if column_name not in existing:
+                connection.execute(text(f"ALTER TABLE runs ADD COLUMN {column_name} {column_type}"))
 
 
 def get_session() -> Generator[Session, None, None]:

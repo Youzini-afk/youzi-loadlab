@@ -21,6 +21,11 @@ class RunRead(BaseModel):
     status: str
     config_json: dict[str, Any]
     locust_web_url: str | None
+    pid: int | None
+    workdir: str | None
+    command_json: list[str]
+    artifacts_json: dict[str, Any]
+    exit_code: int | None
     error_message: str | None
     created_at: datetime
     started_at: datetime | None
@@ -35,6 +40,7 @@ class RunEventRead(BaseModel):
     level: str
     event_type: str
     message: str
+    payload_json: dict[str, Any]
     created_at: datetime
 
 
@@ -52,4 +58,6 @@ class RunMetricsRead(BaseModel):
     p90_latency_ms: float
     p95_latency_ms: float
     p99_latency_ms: float
+    status_counts_json: dict[str, Any]
+    error_counts_json: dict[str, Any]
     tokens_total: int
